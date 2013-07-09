@@ -18,6 +18,11 @@ The workflow of femtomail:
  4. Pass data from standard input to the file.
  5. Exit.
 
+femtomail can replace the sendmail binary, but note that delivery is only
+possible for a single user. When invoked as `newaliases` or `mailq`, the program
+exits with a zero status code. Most [options of sendmail][3] are ignored except
+for the `-fname` and `address` arguments.
+
 
 Installation
 ------------
@@ -54,23 +59,23 @@ directory):
 
 Bugs
 ----
-This program does not parse any sendmail option. All arguments are ignored,
-except the (optional) first address (which is written in the `Received` mail
-header). No validation is performed at this address, the mail headers and its
-body. If femtomail is invoked without specifying mail contents, an empty message
-will be created.
+Not much validation is done for the address specified with the `-f` option or
+the recipient address. The mail headers and its body is passed unprocessed. If
+femtomail is invoked without specifying mail contents, an empty message will be
+created.
 
-Other bugs can be reported at <lekensteyn@gmail.com>.
+Other bugs can be reported at &lt;lekensteyn@gmail.com&gt;.
 
 
 Copyright
 ---------
-Copyright (c) 2013 Peter Wu <lekensteyn@gmail.com>
+Copyright (c) 2013 Peter Wu &lt;lekensteyn@gmail.com&gt;
 
-License: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.  This is
-free software: you are free to change and redistribute it. There is NO WARRANTY,
-to the extent permitted by law.
+License: GNU GPL version 3 or later &lt;http://gnu.org/licenses/gpl.html&gt;.
+This is free software: you are free to change and redistribute it. There is NO
+WARRANTY, to the extent permitted by law.
 
 
  [1]: http://unix.stackexchange.com/q/82093/8250
  [2]: http://heirloom.sourceforge.net/mailx.html
+ [3]: http://www.sendmail.org/~ca/email/man/sendmail.html

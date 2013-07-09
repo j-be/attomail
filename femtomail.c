@@ -1,6 +1,6 @@
 /**
  * femtomail - Minimal sendmail replacement for forwarding mail to a single
- * Maildir box. Note: this program does not try to implement sendmail.
+ * Maildir box.
  *
  * Installation commands:
  * $ cc -DUSERNAME=\"$USER\" femtomail.c -o femtomail
