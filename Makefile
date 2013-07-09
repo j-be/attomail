@@ -1,9 +1,9 @@
-SBINDIR ?= /usr/sbin
-OBJDIR ?= .
+srcdir ?= .
+sbindir ?= /usr/sbin
 DESTDIR ?=
 
 INSTALL ?= install
-RM ?= rm
+RM ?= rm -f
 LN ?= ln
 SETCAP ?= setcap
 
@@ -12,24 +12,27 @@ ifneq ($(MAILBOX_PATH),)
 	override CFLAGS += -DMAILBOX_PATH=\"$(MAILBOX_PATH)\"
 endif
 
-all: $(OBJDIR)/femtomail
-.PHONY: all install install-link-sendmail setcap clean
+all: femtomail
+.PHONY: all install install-link-sendmail setcap clean uninstall
 
-$(OBJDIR)/femtomail: femtomail.c
+femtomail: $(srcdir)/femtomail.c
 ifeq ($(USERNAME),)
 	$(error USERNAME must be set and non-empty)
 endif
-	$(CC) -DUSERNAME=\"$(USERNAME)\" $(CFLAGS) -o $(DESTDIR)$@ $<
+	$(CC) -DUSERNAME=\"$(USERNAME)\" $(CFLAGS) -o $@ $<
 
 clean:
-	$(RM) $(OBJDIR)/femtomail
+	$(RM) femtomail
 
-install: $(OBJDIR)/femtomail
-	$(INSTALL) -m 755 -d $(DESTDIR)$(SBINDIR)
-	$(INSTALL) -m 755 $(OBJDIR)/femtomail $(DESTDIR)$(SBINDIR)/femtomail
+install: femtomail
+	$(INSTALL) -m 755 -d $(DESTDIR)$(sbindir)
+	$(INSTALL) -m 755 femtomail $(DESTDIR)$(sbindir)/femtomail
 
 install-link-sendmail: install
-	$(LN) -s femtomail $(DESTDIR)$(SBINDIR)/sendmail
+	$(LN) -s femtomail $(DESTDIR)$(sbindir)/sendmail
+
+uninstall:
+	$(RM) $(DESTDIR)$(sbindir)
 
 setcap: install
-	$(SETCAP) cap_setuid,cap_setgid=ep $(DESTDIR)$(SBINDIR)/femtomail
+	$(SETCAP) cap_setuid,cap_setgid=ep $(DESTDIR)$(sbindir)/femtomail
