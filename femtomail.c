@@ -3,8 +3,8 @@
  * Maildir box. Note: this program does not try to implement sendmail.
  *
  * Installation commands:
- * $ cc -DUSERNAME=$USER femtomail.c -o femtomail
- * (Optional override: -DMAILBOX_PATH=.Maildir/inbox)
+ * $ cc -DUSERNAME=\"$USER\" femtomail.c -o femtomail
+ * (Optional override: -DMAILBOX_PATH=\".Maildir/inbox\")
  * # install -m 755 femtomail /usr/bin/sendmail
  * # setcap cap_setuid,cap_setgid=ep /usr/bin/sendmail
  *
@@ -38,15 +38,13 @@
 #include <pwd.h>
 #include <sys/prctl.h>
 
-#define STRINGIFY(str) #str
-
 #ifndef USERNAME
 #    error Please define the user to deliver mail to with USERNAME
 #endif
 
 /* Maildir directory relative to home dir of USERNAME (see above) */
 #ifndef MAILBOX_PATH
-#    define MAILBOX_PATH .local/share/local-mail/inbox
+#    define MAILBOX_PATH ".local/share/local-mail/inbox"
 #endif
 
 /* change user/group context to username and fill in maildir path */
@@ -69,7 +67,7 @@ init_user(const char *username, char *maildir, size_t maildir_len) {
         return 1;
     }
 
-    snprintf(maildir, maildir_len, "%s/" STRINGIFY(MAILBOX_PATH) "/new", pwd->pw_dir);
+    snprintf(maildir, maildir_len, "%s/" MAILBOX_PATH "/new", pwd->pw_dir);
     return 0;
 }
 
@@ -199,7 +197,7 @@ main(int argc, char **argv) {
         return (EXIT_FAILURE);
     }
 
-    if (init_user(STRINGIFY(USERNAME), maildir, sizeof(maildir))) {
+    if (init_user((USERNAME), maildir, sizeof(maildir))) {
         return (EXIT_FAILURE);
     }
 
