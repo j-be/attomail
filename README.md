@@ -21,7 +21,8 @@ The workflow of femtomail:
 femtomail can replace the sendmail binary, but note that delivery is only
 possible for a single user. When invoked as `newaliases` or `mailq`, the program
 exits with a zero status code. Most [options of sendmail][3] are ignored except
-for the `-fname` and `address` arguments.
+for the `-fname` and `address` arguments. Only the `-bm` mode (read from stdin and
+deliver the usual way) is supported, femtomail will exit in other modes.
 
 
 Installation

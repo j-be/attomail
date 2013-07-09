@@ -211,6 +211,12 @@ main(int argc, char **argv) {
         case 'f':
             from_address = xstrdup(optarg);
             break;
+        case 'b':
+            if (*optarg != 'm') {
+                /* ignore modes other than "read mail from stdin" */
+                return (EXIT_SUCCESS);
+            }
+            break;
         case '?': /* unrecognized argument */
             return (EXIT_FAILURE);
         default:
