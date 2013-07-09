@@ -71,6 +71,17 @@ init_user(const char *username, char *maildir, size_t maildir_len) {
     return 0;
 }
 
+char *
+xstrdup(char *str) {
+    char *s;
+
+    s = strdup(str);
+    if (!s)
+        abort();
+
+    return s;
+}
+
 /* get a random number between 0 and 999 (inclusive) */
 unsigned
 get_random(void) {
@@ -120,7 +131,7 @@ make_name(char *name, size_t name_len, time_t tm) {
 
 /* write Received header to file */
 void
-write_headers(FILE *mail_fp, const char *address, time_t tm) {
+write_headers(FILE *mail_fp, const char *from_addr, const char *to_addr, time_t tm) {
     char timestr[200];
     struct tm *tmp;
 
@@ -135,7 +146,11 @@ write_headers(FILE *mail_fp, const char *address, time_t tm) {
         return;
     }
 
-    fprintf(mail_fp, "Received: for %s with local (femtomail); %s\n", address, timestr);
+    fprintf(mail_fp, "Received: for %s with local (femtomail)", to_addr);
+    if (from_addr != NULL) {
+        fprintf(mail_fp, " (envelope-from %s)", from_addr);
+    }
+    fprintf(mail_fp, "; %s\n", timestr);
 }
 
 /* read text from stdin and write to file */
@@ -172,29 +187,57 @@ valid_address(const char *address) {
 int
 main(int argc, char **argv) {
     char maildir[256];
-    char *address = NULL, file_path[256];
+    char *from_address = NULL, *to_address = NULL;
+    char file_path[256];
     time_t tm;
-    int i, mail_fd, ret;
+    int opt, mail_fd, ret;
     FILE *mail_fp;
 
-    for (i = 1; i < argc; i++) {
-        if (argv[i][0] == '-') {
-            /* ignore arg, hopefully next arg does not contain a value */
-            continue;
+    if (argc > 0) {
+        char *prog_name = basename(argv[0]);
+        if (!prog_name) {
+            fprintf(stderr, "argv[0] may not be NULL!\n");
+            return (EXIT_FAILURE);
         }
 
-        if (!valid_address(argv[i])) {
+        if (!strcmp(prog_name, "newaliases") || !strcmp(prog_name, "mailq")) {
+            /* ignore program */
+            return (EXIT_SUCCESS);
+        }
+    }
+
+    while ((opt = getopt(argc, argv, "+f:B:b:C:F:h:iN:nO:o:p:q:R:r:tUV:v:X:")) != -1) {
+        switch (opt) {
+        case 'f':
+            from_address = xstrdup(optarg);
+            break;
+        case '?': /* unrecognized argument */
+            return (EXIT_FAILURE);
+        default:
+            /* ignore option */
+            break;
+        }
+    }
+
+    if (optind < argc) {
+        if (!valid_address(argv[optind])) {
             fprintf(stderr, "Illegal characters in address!\n");
             return (EXIT_FAILURE);
         }
 
-        address = argv[i];
-        break;
+        to_address = xstrdup(argv[optind]);
     }
 
-    if (!address) {
+    if (!to_address) {
         fprintf(stderr, "Missing recipient address.\n");
         return (EXIT_FAILURE);
+    }
+
+    if (from_address) {
+        if (!valid_address(from_address)) {
+            fprintf(stderr, "Illegal characters in From address!\n");
+            return (EXIT_FAILURE);
+        }
     }
 
     if (init_user((USERNAME), maildir, sizeof(maildir))) {
@@ -218,13 +261,15 @@ main(int argc, char **argv) {
 
     mail_fp = fdopen(mail_fd, "w");
 
-    write_headers(mail_fp, address, tm);
+    write_headers(mail_fp, from_address, to_address, tm);
     ret = read_and_write(mail_fp);
     if (ret) {
             perror("fwrite");
     }
 
     fclose(mail_fp);
+    free(to_address);
+    free(from_address);
     return ret;
 }
 
