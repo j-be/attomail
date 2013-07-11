@@ -129,28 +129,84 @@ make_name(char *name, size_t name_len, time_t tm) {
         (unsigned long long) tm, get_random(), hostname);
 }
 
-/* write Received header to file */
 void
-write_headers(FILE *mail_fp, const char *from_addr, const char *to_addr, time_t tm) {
-    char timestr[200];
+get_timestr(const time_t *tp, char *timestr, size_t timestr_len) {
     struct tm *tmp;
 
-    tmp = localtime(&tm);
+    tmp = localtime(tp);
     if (tmp == NULL) {
         perror("localtime");
         return;
     }
 
-    if (!strftime(timestr, sizeof(timestr), "%a, %d %b %Y %T %z", tmp)) {
+    if (!strftime(timestr, timestr_len, "%a, %d %b %Y %T %z", tmp)) {
         fprintf(stderr, "strftime() failed!\n");
-        return;
     }
+}
 
+/* test whether a line contains a header */
+bool
+is_header(const char *line, const char *hdr) {
+    size_t hdr_len = strlen(hdr);
+
+    while (isspace(*line))
+        line++;
+
+    if (strncasecmp(line, hdr, hdr_len)) {
+        return false;
+    }
+    line += hdr_len;
+
+    while (isspace(*line))
+        line++;
+
+    return *line == ':';
+}
+
+/* write Received header to file and append Date/From if missing */
+int
+handle_headers(FILE *mail_fp, const char *from_addr, const char *to_addr, time_t tm) {
+    bool line_cont = false; /* line continuation or new line? */
+    char timestr[200], buf[4096];
+    bool has_from = false, has_date = false;
+
+    get_timestr(&tm, timestr, sizeof(timestr));
+
+    /* always begin with a Received header */
     fprintf(mail_fp, "Received: for %s with local (femtomail)", to_addr);
     if (from_addr != NULL) {
         fprintf(mail_fp, " (envelope-from %s)", from_addr);
     }
     fprintf(mail_fp, "; %s\n", timestr);
+
+    /* process headers from input */
+    while (fgets(buf, sizeof(buf), stdin) != NULL) {
+        if (!line_cont) {
+            if (is_header(buf, "From")) has_from = true;
+            if (is_header(buf, "Date")) has_date = true;
+            if (!strcmp(buf, "\n") || !strcmp(buf, "\r\n")) {
+                break; /* end of headers */
+            }
+        }
+        /* if line does not end with LF, then line is longer than buffer */
+        line_cont = buf[strlen(buf) - 1] != '\n';
+
+        if (fputs(buf, mail_fp) == EOF) {
+            return 1;
+        }
+    }
+
+    if (!has_date) {
+        fprintf(mail_fp, "Date: %s\n", timestr);
+    }
+    if (!has_from) {
+        fprintf(mail_fp, "From: %s\n", from_addr);
+    }
+
+    /* insert end of headers */
+    fputc('\n', mail_fp);
+
+    return 0;
 }
 
 /* read text from stdin and write to file */
@@ -239,6 +295,13 @@ main(int argc, char **argv) {
         return (EXIT_FAILURE);
     }
 
+    if (!from_address) {
+        struct passwd *pwd = getpwuid(getuid());
+        if (pwd) {
+            from_address = xstrdup(pwd->pw_name);
+        }
+    }
+
     if (from_address) {
         if (!valid_address(from_address)) {
             fprintf(stderr, "Illegal characters in From address!\n");
@@ -267,8 +330,10 @@ main(int argc, char **argv) {
 
     mail_fp = fdopen(mail_fd, "w");
 
-    write_headers(mail_fp, from_address, to_address, tm);
-    ret = read_and_write(mail_fp);
+    ret = handle_headers(mail_fp, from_address, to_address, tm);
+    if (ret == 0) {
+        ret = read_and_write(mail_fp);
+    }
     if (ret) {
             perror("fwrite");
     }

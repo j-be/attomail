@@ -14,7 +14,8 @@ The workflow of femtomail:
 
  1. Change the process user and group.
  2. Create a new file with a [unique filename][2] in the mail directory.
- 3. Write a `Received` header to the file.
+ 3. Write a `Received` header to the file. If `From` and `Date` headers are
+    missing, then they will also be appended to the headers.
  4. Pass data from standard input to the file.
  5. Exit.
 
@@ -61,9 +62,10 @@ directory):
 Bugs
 ----
 Not much validation is done for the address specified with the `-f` option or
-the recipient address. The mail headers and its body is passed unprocessed. If
-femtomail is invoked without specifying mail contents, an empty message will be
-created.
+the recipient address. The mail body is passed unprocessed. If femtomail is
+invoked without specifying mail contents, an empty message will be created. If
+the mail does not contain headers, `Date` and `From` headers will be appended
+anyway.
 
 Other bugs can be reported at &lt;lekensteyn@gmail.com&gt;.
 
