@@ -40,6 +40,8 @@ be changed to `~/.Maildir/inbox` as follows:
 To install femtomail on your system with the appropriate capabilities:
 
     make install install-link-sendmail setcap
+    # You must manually create the mailbox if it does not exist yet
+    mkdir -p ~/.local/share/local-mail/inbox
 
 Note: the femtomail binary must be installed with file capabilities set
 (recommended). Alternatively, the program can run with setuid-root. Either way,
