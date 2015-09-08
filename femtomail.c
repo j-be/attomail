@@ -8,7 +8,7 @@
  * # install -m 755 femtomail /usr/bin/sendmail
  * # setcap cap_setuid,cap_setgid=ep /usr/bin/sendmail
  *
- * Copyright (C) 2013 Peter Wu <lekensteyn@gmail.com>
+ * Copyright (C) 2013-2015 Peter Wu <peter@lekensteyn.nl>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

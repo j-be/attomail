@@ -74,12 +74,12 @@ invoked without specifying mail contents, an empty message will be created. If
 the mail does not contain headers, `Date` and `From` headers will be appended
 anyway.
 
-Other bugs can be reported at &lt;lekensteyn@gmail.com&gt;.
+Other bugs can be reported at &lt;peter@lekensteyn.nl&gt;.
 
 
 Copyright
 ---------
-Copyright (c) 2013 Peter Wu &lt;lekensteyn@gmail.com&gt;
+Copyright (c) 2013-2015 Peter Wu &lt;peter@lekensteyn.nl&gt;
 
 License: GNU GPL version 3 or later &lt;http://gnu.org/licenses/gpl.html&gt;.
 This is free software: you are free to change and redistribute it. There is NO
