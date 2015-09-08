@@ -42,7 +42,8 @@
 #    error Please define the user to deliver mail to with USERNAME
 #endif
 
-/* Maildir directory relative to home dir of USERNAME (see above) */
+/* Maildir; either absolute (starting with a forward slash) or
+ * a directory relative to home dir of USERNAME (see above) */
 #ifndef MAILBOX_PATH
 #    define MAILBOX_PATH ".local/share/local-mail/inbox"
 #endif
@@ -67,7 +68,11 @@ init_user(const char *username, char *maildir, size_t maildir_len) {
         return 1;
     }
 
-    snprintf(maildir, maildir_len, "%s/" MAILBOX_PATH "/new", pwd->pw_dir);
+    if ((MAILBOX_PATH)[0] == '/') {
+        snprintf(maildir, maildir_len, "%s/new", MAILBOX_PATH);
+    } else {
+        snprintf(maildir, maildir_len, "%s/%s/new", pwd->pw_dir, MAILBOX_PATH);
+    }
     return 0;
 }
 

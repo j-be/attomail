@@ -37,6 +37,11 @@ be changed to `~/.Maildir/inbox` as follows:
 
     make USERNAME=peter MAILBOX_PATH=.Maildir/inbox
 
+Absolute paths are also supported. The following configuration will put mail in
+`/var/mail/new/(filename)`:
+
+    make USERNAME=nobody MAILBOX_PATH=/var/mail
+
 To install femtomail on your system with the appropriate capabilities:
 
     make install install-link-sendmail setcap
