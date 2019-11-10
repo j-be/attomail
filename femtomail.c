@@ -45,26 +45,16 @@
 /* Maildir; either absolute (starting with a forward slash) or
  * a directory relative to home dir of USERNAME (see above) */
 #ifndef MAILBOX_PATH
-#    define MAILBOX_PATH ".local/share/local-mail/inbox"
+#    define MAILBOX_PATH "Maildir"
 #endif
 
 /* change user/group context to username and fill in maildir path */
 int
 init_user(const char *username, char *maildir, size_t maildir_len) {
     struct passwd *pwd;
-    uid_t uid;
-    gid_t gid;
 
     if ((pwd = getpwnam(username)) == NULL) {
         fprintf(stderr, "Unknown user %s, cannot locate Maildir.\n", username);
-        return 1;
-    }
-
-    uid = pwd->pw_uid;
-    gid = pwd->pw_gid;
-
-    if (setresgid(gid, gid, gid) || setresuid(uid, uid, uid)) {
-        perror("Failed to change uid/gid");
         return 1;
     }
 
