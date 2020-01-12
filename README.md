@@ -12,12 +12,11 @@ the simple task of [delivering cron mail to the local user][1].
 
 The workflow of attomail:
 
- 1. Change the process user and group.
- 2. Create a new file with a [unique filename][2] in the mail directory.
- 3. Write a `Received` header to the file. If `From` and `Date` headers are
+ 1. Create a new file with a [unique filename][2] in the mail directory.
+ 2. Write a `Received` header to the file. If `From` and `Date` headers are
     missing, then they will also be appended to the headers.
- 4. Pass data from standard input to the file.
- 5. Exit.
+ 3. Pass data from standard input to the file.
+ 4. Exit.
 
 attomail can replace the sendmail binary, but note that delivery is only
 possible for a single user. When invoked as `newaliases` or `mailq`, the program
@@ -30,27 +29,25 @@ Installation
 ------------
 The user to deliver mail to has to be specified at compile time:
 
-    make USERNAME=peter
+    make USERNAME=peter attomail
 
-By default, the Maildir directory is `~/.local/share/local-mail/inbox`. It can
+By default, the Maildir directory is `~/Maildir`. It can
 be changed to `~/.Maildir/inbox` as follows:
 
-    make USERNAME=peter MAILBOX_PATH=.Maildir/inbox
+    make USERNAME=peter MAILBOX_PATH=.Maildir/inbox attomail
 
 Absolute paths are also supported. The following configuration will put mail in
 `/var/mail/new/(filename)`:
 
-    make USERNAME=nobody MAILBOX_PATH=/var/mail
+    make USERNAME=nobody MAILBOX_PATH=/var/mail attomail
 
 To install attomail on your system with the appropriate capabilities:
 
-    make install install-link-sendmail setcap
-    # You must manually create the mailbox if it does not exist yet
-    mkdir -p ~/.local/share/local-mail/inbox
+    # Copy attomail binary to its destination
+    # Make sure attomail is owned by the correct user (i.e. the same as used for USERNAME variable while building it)
+    chmod 4111 attomail
 
-Note: the attomail binary must be installed with file capabilities set
-(recommended). Alternatively, the program can run with setuid-root. Either way,
-the user and groups are changed before the mail is read and written.
+Note: The attomail binary must be installed with setuid enabled. Else, it won't work.
 
 
 Usage
@@ -74,7 +71,7 @@ invoked without specifying mail contents, an empty message will be created. If
 the mail does not contain headers, `Date` and `From` headers will be appended
 anyway.
 
-Other bugs can be reported at &lt;peter@lekensteyn.nl&gt;.
+Other bugs can be reported in the "Issues" of this Github project.
 
 
 Copyright
