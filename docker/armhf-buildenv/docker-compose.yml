@@ -8,4 +8,4 @@ services:
     volumes:
       - type: bind
         source: ./target
-        target: /femtomail/target
+        target: /attomail/target

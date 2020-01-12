@@ -12,8 +12,8 @@ RUN apt-get install -y crossbuild-essential-armhf
 ## Copy sources
 ##
 
-COPY femtomail.c /femtomail/
-COPY Makefile /femtomail/
+COPY attomail.c /attomail/
+COPY Makefile /attomail/
 
 ################################################################################
 ## Build
@@ -22,5 +22,5 @@ COPY Makefile /femtomail/
 ENV USERNAME="status"
 ENV CC="arm-linux-gnueabihf-gcc"
 
-WORKDIR /femtomail/
-ENTRYPOINT make clean && make femtomail
+WORKDIR /attomail/
+ENTRYPOINT make clean && make attomail

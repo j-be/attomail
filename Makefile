@@ -13,7 +13,7 @@ ifneq ($(MAILBOX_PATH),)
 	override CFLAGS += -DMAILBOX_PATH=\"$(MAILBOX_PATH)\"
 endif
 
-femtomail: $(srcdir)/femtomail.c
+attomail: $(srcdir)/attomail.c
 ifeq ($(USERNAME),)
 	$(error USERNAME must be set and non-empty)
 endif
@@ -21,4 +21,4 @@ endif
 	$(CC) -DUSERNAME=\"$(USERNAME)\" $(CFLAGS) -o target/$@ $<
 
 clean:
-	$(RM) target/femtomail
+	$(RM) target/attomail
